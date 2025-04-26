@@ -2,7 +2,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:shimmer/shimmer.dart';
 
 class ProfileAppointmentsScreen extends StatefulWidget {
   const ProfileAppointmentsScreen({super.key});
@@ -11,22 +10,26 @@ class ProfileAppointmentsScreen extends StatefulWidget {
   _ProfileAppointmentsScreenState createState() => _ProfileAppointmentsScreenState();
 }
 
-class _ProfileAppointmentsScreenState extends State<ProfileAppointmentsScreen> {
+class _ProfileAppointmentsScreenState extends State<ProfileAppointmentsScreen> with SingleTickerProviderStateMixin {
   XFile? _profileImage;
   bool _isUrgent = false;
   bool _isEditing = false;
 
   final picker = ImagePicker();
+  late final AnimationController _controller = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 500),
+  );
   final Map<String, String> userDetails = {
-    'Full Name': 'John Doe',
-    'Email': 'john.doe@example.com',
+    'Full Name': 'Samir Pissiron',
+    'Email': 'samir.doe@example.com',
     'Phone': '+1 (555) 123-4567',
-    'Address': '123 Main St, Cityville',
+    'Address': 'Sidi 3mor, lekram',
   };
   final Map<String, String> carDetails = {
-    'Model': 'Toyota Camry',
+    'Model': '103',
     'VIN': '1HGCM82633A123456',
-    'Year': '2020',
+    'Year': '1997',
   };
 
   late final Map<String, TextEditingController> controllers = {
@@ -46,7 +49,6 @@ class _ProfileAppointmentsScreenState extends State<ProfileAppointmentsScreen> {
 
   void _toggleEdit() {
     if (_isEditing) {
-      // save
       userDetails.forEach((k, _) => userDetails[k] = controllers[k]!.text);
       carDetails.forEach((k, _) => carDetails[k] = controllers[k]!.text);
     }
@@ -55,6 +57,7 @@ class _ProfileAppointmentsScreenState extends State<ProfileAppointmentsScreen> {
 
   @override
   void dispose() {
+    _controller.dispose();
     for (var c in controllers.values) {
       c.dispose();
     }
@@ -63,103 +66,81 @@ class _ProfileAppointmentsScreenState extends State<ProfileAppointmentsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        title: Text('Profile', style: Theme.of(context).textTheme.headlineLarge?.copyWith(color: Colors.white)),
+        title: const Text(
+          'Profil',
+          style: TextStyle(
+            fontSize: 22,
+            fontWeight: FontWeight.w500,
+            color: Color.fromARGB(255, 73, 73, 73),
+          ),
+        ),
         actions: [
           IconButton(
-            icon: Icon(_isEditing ? Icons.save : Icons.edit, color: Colors.white),
+            icon: Icon(_isEditing ? Icons.save : Icons.edit, color: const Color.fromARGB(255, 73, 73, 73)),
             onPressed: _toggleEdit,
           )
         ],
       ),
       body: Stack(
         children: [
-          Container(
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                colors: [Color(0xFF3A6EA5), Color(0xFF1F2A44)],
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-              ),
-            ),
-          ),
           SafeArea(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+              padding: const EdgeInsets.symmetric(horizontal: 24),
               child: Column(
                 children: [
-                  // Profile Photo
-                  Stack(
-                    children: [
-                      CircleAvatar(
-                        radius: 60,
-                        backgroundColor: Colors.grey.shade200,
-                        backgroundImage: _profileImage != null
-                            ? FileImage(File(_profileImage!.path))
-                            : const AssetImage('assets/person.jpg') as ImageProvider,
-                        onBackgroundImageError: (_, __) => debugPrint("Failed to load asset image"),
-                      ),
-                      Positioned(
-                        bottom: 0,
-                        right: 0,
-                        child: InkWell(
-                          onTap: _pickImage,
-                          borderRadius: BorderRadius.circular(18),
-                          child: const CircleAvatar(
-                            radius: 18,
-                            backgroundColor: Colors.white,
-                            child: Icon(Icons.camera_alt, color: Colors.black87, size: 20),
-                          ),
+                  const SizedBox(height: 12),
+                  GestureDetector(
+                    onTap: _isEditing ?_pickImage:null,
+                    child: AnimatedScale(
+                      scale: _isEditing ? 1.05 : 1.0,
+                      duration: const Duration(milliseconds: 300),
+                      child: CircleAvatar(
+                        radius: 105,
+                        backgroundColor: const Color.fromARGB(255, 67, 117, 111),
+                        child: CircleAvatar(
+                          radius: 100,
+                          backgroundImage: _profileImage != null
+                              ? FileImage(File(_profileImage!.path))
+                              : const AssetImage('assets/samir.jpg') as ImageProvider,
                         ),
                       ),
-                      if (_profileImage == null)
-                        Positioned.fill(
-                          child: IgnorePointer(
-                            ignoring: true,
-                            child: Shimmer.fromColors(
-                              baseColor: Colors.grey.shade300,
-                              highlightColor: Colors.grey.shade100,
-                              child: const CircleAvatar(radius: 60, backgroundColor: Colors.transparent),
-                            ),
-                          ),
-                        ),
-                    ],
+                    ),
                   ),
                   const SizedBox(height: 12),
                   Text(
-                    userDetails['Full Name']!,
-                    style: Theme.of(context)
-                        .textTheme
-                        .titleLarge
-                        ?.copyWith(color: Colors.white, fontWeight: FontWeight.bold),
+                    userDetails['Full Name'] ?? '',
+                    style: theme.textTheme.titleLarge?.copyWith(
+                      color: const Color.fromARGB(255, 73, 73, 73),
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
-                  const SizedBox(height: 24),
-
-                  // Urgent Toggle
+                  const SizedBox(height: 20),
+                  // Urgent Status
                   Card(
-                    color: _isUrgent ? Colors.redAccent : Colors.amber,
-                    margin: const EdgeInsets.symmetric(vertical: 8),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    child: SwitchListTile(
-                      title: const Text('Urgent Status', style: TextStyle(color: Colors.white)),
-                      secondary: const Icon(Icons.warning, color: Colors.white),
-                      value: _isUrgent,
-                      onChanged: (v) => setState(() => _isUrgent = v),
+                    color: _isUrgent ? Colors.redAccent.withOpacity(0.8) : Colors.transparent,
+                    child: ListTile(
+                      leading: const Icon(Icons.warning, color: Color.fromARGB(255, 73, 73, 73)),
+                      title: Text('Urgent Status', style: theme.textTheme.titleMedium?.copyWith(color: const Color.fromARGB(255, 73, 73, 73))),
+                      trailing: Switch(
+                        value: _isUrgent,
+                        onChanged: (val) => setState(() => _isUrgent = val),
+                        activeColor:Colors.transparent,
+                      ),
                     ),
                   ),
 
-                  // Info Sections
                   _buildInfoSection('Personal Information', userDetails),
                   _buildInfoSection('Vehicle Information', carDetails),
 
-                  // Appointments
                   Align(
                       alignment: Alignment.centerLeft,
                       child: _sectionHeader('Upcoming Appointments')),
+
                   ...appointments.map((a) => _buildAppointmentCard(a)),
                 ],
               ),
@@ -172,49 +153,68 @@ class _ProfileAppointmentsScreenState extends State<ProfileAppointmentsScreen> {
 
   Widget _sectionHeader(String text) => Padding(
         padding: const EdgeInsets.symmetric(vertical: 16),
-        child: Text(text, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white70)),
-      );
-
-  Widget _buildInfoSection(String title, Map<String, String> data) => Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _sectionHeader(title),
-          ...data.entries.map((e) {
-            return Card(
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              elevation: 2,
-              child: ListTile(
-                leading: Icon(_getIcon(e.key), color: Colors.blueAccent),
-                title: _isEditing
-                    ? TextField(
-                        controller: controllers[e.key],
-                        decoration: InputDecoration(border: InputBorder.none, hintText: e.key),
-                      )
-                    : Text(e.value),
-              ),
-            );
-          })
-        ],
-      );
-
-  Widget _buildAppointmentCard(Appointment a) => Card(
-        margin: const EdgeInsets.symmetric(vertical: 8),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        elevation: 3,
-        child: ListTile(
-          contentPadding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-          leading: CircleAvatar(
-              backgroundColor: Theme.of(context).colorScheme.primary,
-              child: const Icon(Icons.build, color: Colors.white)),
-          title: Text(a.service, style: const TextStyle(fontWeight: FontWeight.bold)),
-          subtitle: Text('${a.date} • ${a.time}'),
-          trailing: Chip(
-            label: Text(a.status),
-            backgroundColor: a.status == 'Confirmed' ? Colors.green.shade100 : Colors.orange.shade100,
-          ),
-          onTap: () {},
+        child: Text(
+          text,
+          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w500, color: Color.fromARGB(255, 73, 73, 73)),
         ),
       );
+
+  Widget _buildInfoSection(String title, Map<String, String> data) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _sectionHeader(title),
+        ...data.entries.map((e) {
+          return Card(
+            margin: const EdgeInsets.symmetric(vertical: 4),
+            color: _isEditing ? Colors.white10 : const Color.fromARGB(255, 67, 117, 111),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            child: ListTile(
+              leading: Icon(_getIcon(e.key), color: Colors.black87),
+              title: _isEditing
+                  ? TextField(
+                      controller: controllers[e.key],
+                      style: const TextStyle(color: Colors.white),
+                      decoration: InputDecoration(
+                        border: InputBorder.none,
+                        hintText: e.key,
+                        hintStyle: const TextStyle(color: Color.fromARGB(137, 255, 255, 255)),
+                      ),
+                    )
+                  : Text(
+                      e.value,
+                      style: const TextStyle(color: Color.fromARGB(221, 255, 255, 255)),
+                    ),
+            ),
+          );
+        }),
+      ],
+    );
+  }
+
+  Widget _buildAppointmentCard(Appointment a) {
+    return Card(
+      color: Colors.white70,
+      margin: const EdgeInsets.symmetric(vertical: 8),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      elevation: 2,
+      child: ExpansionTile(
+        tilePadding: const EdgeInsets.symmetric(horizontal: 16),
+        leading: CircleAvatar(
+          backgroundColor: Theme.of(context).colorScheme.primary,
+          child: const Icon(Icons.build, color: Colors.white),
+        ),
+        title: Text(a.service, style: const TextStyle(fontWeight: FontWeight.bold)),
+        subtitle: Text('${a.date} • ${a.time}'),
+        children: [
+          ListTile(
+            title: Text('Mechanic: ${a.mechanic}'),
+            subtitle: Text('Status: ${a.status}'),
+          )
+        ],
+      ),
+    );
+  }
 
   IconData _getIcon(String key) {
     switch (key) {

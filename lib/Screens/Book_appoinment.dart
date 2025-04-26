@@ -1,4 +1,4 @@
-// ignore_for_file: deprecated_member_use, library_private_types_in_public_api, file_names
+// ignore_for_file: file_names, library_private_types_in_public_api, deprecated_member_use
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -10,7 +10,7 @@ class BookAppointmentScreen extends StatefulWidget {
   _BookAppointmentScreenState createState() => _BookAppointmentScreenState();
 }
 
-class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
+class _BookAppointmentScreenState extends State<BookAppointmentScreen> with SingleTickerProviderStateMixin {
   final List<Service> _services = [
     Service('Oil Change', Icons.local_car_wash, 49.99),
     Service('Tire Rotation', Icons.settings, 39.99),
@@ -24,6 +24,13 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
   DateTime? _selectedDate;
   TimeOfDay? _selectedTime;
   final TextEditingController _notesController = TextEditingController();
+
+  late AnimationController _animationController;
+
+  @override
+  void initState() {
+    super.initState();
+  }
 
   void _confirmBooking() {
     if (_selectedService == null || _selectedDate == null || _selectedTime == null) {
@@ -49,7 +56,7 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.check_circle, size: 64, color: Colors.green),
+            const Icon(Icons.check_circle_outline, size: 64, color: Colors.teal),
             const SizedBox(height: 16),
             const Text('Appointment Confirmed!',
                 style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
@@ -65,7 +72,7 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
               onPressed: () => Navigator.pop(context),
               style: ElevatedButton.styleFrom(
                 minimumSize: const Size.fromHeight(48),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
               ),
               child: const Text('Done', style: TextStyle(fontSize: 16)),
             ),
@@ -79,6 +86,7 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
   @override
   void dispose() {
     _notesController.dispose();
+    _animationController.dispose();
     super.dispose();
   }
 
@@ -86,37 +94,33 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       extendBodyBehindAppBar: true,
-      backgroundColor: Colors.transparent,
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
         centerTitle: false,
         title: const Text(
-          'Book an appointment ?',
+          'Book an Appointment',
           style: TextStyle(
-            fontWeight: FontWeight.w700,
-            fontSize: 17,
-            color: Color.fromARGB(255, 255, 255, 255),
+            fontSize: 22,
+            fontWeight: FontWeight.w500,
+            color: Color.fromARGB(255, 73, 73, 73),
           ),
         ),
       ),
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
+            colors: [Color(0xFFE0F7FA), Color(0xFFF1F8E9)],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [Color(0xFF2A4B7C), Color(0xFF1A1A2F)],
           ),
         ),
         child: SafeArea(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const SizedBox(height: 5),
-                const Text('Select Service',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white)),
+                const SizedBox(height: 10),
+                _buildSectionTitle('Select Service'),
                 const SizedBox(height: 12),
                 Wrap(
                   spacing: 12,
@@ -128,28 +132,30 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                       avatar: Icon(s.icon, color: selected ? Colors.white : Colors.black54),
                       selected: selected,
                       onSelected: (_) => setState(() => _selectedService = s),
-                      selectedColor: Colors.green,
+                      selectedColor: const Color.fromARGB(255, 67, 117, 111),
                       backgroundColor: Colors.white,
                       labelStyle: TextStyle(color: selected ? Colors.white : Colors.black87),
+                      elevation: selected ? 4 : 0,
+                      pressElevation: 8,
                     );
                   }).toList(),
                 ),
                 const SizedBox(height: 24),
-                const Text('Pick Date & Time',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white)),
+                _buildSectionTitle('Pick Date & Time'),
                 const SizedBox(height: 12),
                 Card(
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  color:const Color.fromARGB(255, 109, 163, 155) ,
+                  elevation: 4,
+                  shadowColor: const Color.fromARGB(255, 67, 117, 111),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                   child: Padding(
                     padding: const EdgeInsets.all(12),
                     child: Column(
                       children: [
                         ListTile(
-                          leading: const Icon(Icons.calendar_today),
+                          leading: const Icon(Icons.calendar_today,color: Colors.white70,),
                           title: Text(
-                            _selectedDate == null
-                                ? 'Select Date'
-                                : DateFormat.yMMMd().format(_selectedDate!),
+                            _selectedDate == null ? ('Select Date') : DateFormat.yMMMd().format(_selectedDate!),
                           ),
                           onTap: () async {
                             final date = await showDatePicker(
@@ -161,12 +167,11 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                             if (date != null) setState(() => _selectedDate = date);
                           },
                         ),
+                        const Divider(height: 6),
                         ListTile(
-                          leading: const Icon(Icons.access_time),
+                          leading: const Icon(Icons.access_time,color:Colors.white70),
                           title: Text(
-                            _selectedTime == null
-                                ? 'Select Time'
-                                : _selectedTime!.format(context),
+                            _selectedTime == null ? 'Select Time' : _selectedTime!.format(context),
                           ),
                           onTap: () async {
                             final time = await showTimePicker(
@@ -184,39 +189,34 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                 TextFormField(
                   controller: _notesController,
                   maxLines: 4,
-                  style: const TextStyle(color: Colors.white),
+                  style: const TextStyle(color: Color(0xFF1D1D1F)),
                   decoration: InputDecoration(
                     hintText: 'Additional notes...',
-                    hintStyle: const TextStyle(color: Colors.white70),
+                    hintStyle: const TextStyle(color: Colors.black38),
                     filled: true,
-                    fillColor: Colors.white.withOpacity(0.1),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                    fillColor: Colors.white.withOpacity(0.9),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
                   ),
                 ),
                 const SizedBox(height: 32),
                 ElevatedButton(
                   onPressed: _confirmBooking,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green,
-                    minimumSize: const Size.fromHeight(48),
-                    shape: const StadiumBorder(),
+                    backgroundColor: const Color.fromARGB(255, 67, 117, 111),
+                    minimumSize: const Size.fromHeight(50),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                   ),
-                  child: const Text('Confirm Booking', style: TextStyle(fontSize: 16)),
+                  child: const Text('Confirm Booking', style: TextStyle(fontSize: 16,color: Colors.white70)),
                 ),
                 const SizedBox(height: 24),
-                // Bottom Logo
                 Center(
                   child: Column(
                     children: [
-                      Image.asset(
-                        'assets/OIP.jpg',
-                        height: 100,
-                        fit: BoxFit.contain,
-                      ),
+                      Image.asset('assets/OIP.jpg', height: 100, fit: BoxFit.contain),
                       const SizedBox(height: 16),
                       const Text(
                         'Drive with Confidence',
-                        style: TextStyle(color: Colors.white70, fontSize: 14),
+                        style: TextStyle(color: Colors.black54, fontSize: 16, fontWeight: FontWeight.w600),
                       ),
                     ],
                   ),
@@ -231,10 +231,24 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
 
   Widget _detailRow(String title, String value) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
+      padding: const EdgeInsets.symmetric(vertical: 6),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [Text(title), Text(value, style: const TextStyle(fontWeight: FontWeight.bold))],
+        children: [
+          Text(title, style: const TextStyle(fontWeight: FontWeight.w500)),
+          Text(value, style: const TextStyle(fontWeight: FontWeight.bold)),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSectionTitle(String title) {
+    return Text(
+      title,
+      style: const TextStyle(
+        fontSize: 20,
+        fontWeight: FontWeight.bold,
+        color: Color(0xFF1D1D1F),
       ),
     );
   }

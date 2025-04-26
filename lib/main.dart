@@ -1,4 +1,3 @@
-
 import 'package:cars_appointments/Screens/Splash.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -20,7 +19,7 @@ class MyApp extends StatelessWidget {
         ),
       ),
       debugShowCheckedModeBanner: false,
-      home:  const SplashScreen(),
+      home:   const SplashScreen(),
     );
   }
 }

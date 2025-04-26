@@ -28,8 +28,10 @@ class _TechnicianAgendaPageState extends State<TechnicianAgendaPage> {
     super.initState();
     _selected = _focused;
     _appts.addAll([
-      Appointment('A', DateTime.now().add(const Duration(hours: 2)), 60, 'Oil Change', AppointmentStatus.confirmed, technician: _techs[0]),
-      Appointment('B', DateTime.now().add(const Duration(hours: 4)), 90, 'Brakes', AppointmentStatus.pending, technician: _techs[1]),
+      Appointment('John', DateTime.now().add(const Duration(hours: 2)), 60, 'Oil Change', AppointmentStatus.completed, technician: _techs[0]),
+      Appointment('Anis', DateTime.now().add(const Duration(hours: 4)), 90, 'Brakes', AppointmentStatus.confirmed, technician: _techs[1]),
+      Appointment('zied', DateTime.now().add(const Duration(hours: 1)), 100, 'AC Service', AppointmentStatus.pending, technician: _techs[0]),
+      Appointment('Chtioui', DateTime.now().add(const Duration(hours: 5)), 110, 'Diagnostics', AppointmentStatus.pending, technician: _techs[1]),
     ]);
   }
 
@@ -46,10 +48,10 @@ class _TechnicianAgendaPageState extends State<TechnicianAgendaPage> {
         elevation: 0,
         title: const Text(
           'Technician Agenda',
-          style: TextStyle(fontWeight: FontWeight.w100, fontSize: 24, color: Color.fromARGB(255, 0, 0, 0)),
+          style: TextStyle(fontWeight: FontWeight.w100, fontSize: 24, color: Color.fromARGB(255, 73, 73, 73)),
         ),
           actions: [
-            IconButton(icon: const Icon(Icons.today), onPressed: _toToday),
+            IconButton(icon: const Icon(Icons.today,color: Color.fromARGB(255, 73, 73, 73),), onPressed: _toToday),
           ],
       ),
         body: Container(
@@ -119,7 +121,7 @@ class _TechnicianAgendaPageState extends State<TechnicianAgendaPage> {
             leading: const Icon(Icons.build),
             title: Text(a.service),
             subtitle: Text('${DateFormat.jm().format(a.time)} · ${a.technician?.name}'),
-            trailing: Chip(label: Text(a.status.name), backgroundColor: a.status.color.withOpacity(0.2)),
+            trailing: Chip(label: Text(a.status.name), backgroundColor: a.status.color.withOpacity(0.4)),
             onTap: () => _show(a),
           ),
         );
@@ -166,11 +168,11 @@ extension AppointmentStatusColor on AppointmentStatus {
   Color get color {
     switch (this) {
       case AppointmentStatus.confirmed:
-        return Colors.green;
+        return const Color.fromARGB(255, 151, 0, 0);
       case AppointmentStatus.pending:
         return Colors.orange;
       case AppointmentStatus.completed:
-        return Colors.grey;
+        return const Color.fromARGB(255, 66, 153, 48);
     }
   }
 }
