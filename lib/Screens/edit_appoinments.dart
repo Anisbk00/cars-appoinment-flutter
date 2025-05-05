@@ -62,7 +62,7 @@ class _EditAppointmentScreenState extends State<EditAppointmentScreen> {
       firstDate: DateTime.now(),
       lastDate: DateTime(2100),
     );
-    if (date != null) setState(() => selectedDate = date);
+    setState(() => selectedDate = date!);
   }
 
   Future<void> _pickTime() async {
@@ -74,7 +74,6 @@ class _EditAppointmentScreenState extends State<EditAppointmentScreen> {
   }
 
   void _saveAppointment() {
-    // Here you would normally update to backend
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text("Appointment updated")),
     );
